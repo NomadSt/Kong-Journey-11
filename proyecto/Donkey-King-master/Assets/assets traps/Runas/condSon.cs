@@ -32,7 +32,7 @@ public class condSon : MonoBehaviour
     public void OnTriggerStay(Collider other)
     {
 
-        if (other.tag == "Player")
+        if (other.tag == "Wukong")
         {
             inhibitor = true;
             touch = true;

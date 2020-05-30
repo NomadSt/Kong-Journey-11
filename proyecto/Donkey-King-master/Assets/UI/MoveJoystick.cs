@@ -135,6 +135,10 @@ public class MoveJoystick : MonoBehaviour, IDragHandler, IEndDragHandler
             }
         }
 
+        //BUG AVANCE EN DIAGONAL CON 1 TECLA
+        if (curPos < 0)
+            curPos = 0;
+
         for (int ii = 0; ii < 4; ii++)
         {
             for (int k = 0; k < 4; k++)
@@ -322,9 +326,20 @@ public class MoveJoystick : MonoBehaviour, IDragHandler, IEndDragHandler
             velocityPer = velPerc;
         }
 
+        //Bug seguir moviendose al hacer click fuera de la pantalla
+        if(W == false & A == false & S == false & D == false)
+        {
+            kei = false;
+            touch = false;
+            ax = 0;
+            curPos = 0;
+        }
+
         if (pej.GetComponent<Player>().notMove == true)
         {
             touch = false;
+            //BUG AVANCE EN DIAGONAL CON 1 TECLA
+            curPos = 0;
 
             W = false;
             A = false;

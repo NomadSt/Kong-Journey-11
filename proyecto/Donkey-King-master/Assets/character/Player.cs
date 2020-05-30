@@ -82,13 +82,28 @@ public class Player : MonoBehaviour
     public static bool wolfTouch;// USAR SOLO EN ESTE PROYECTO
     public static bool dragonTouch;// USAR SOLO EN ESTE PROYECTO
     public GameObject contadore;// USAR SOLO EN ESTE PROYECTO
+    public bool wolfMonitor;
 
     public bool notMove;
     public float timerMove = 1.5f;
 
+    //Dash fix
+    public GameObject dashCollider;
+    public float DashFixTimer = 1.0f;
+    public bool DashNoConsecutivo;
+    //public int DashSend;
+    //public int DashRec;
+    public int DashTiming = 0;
+    public int timing = 120;
+    public float timeningDash = 0.1f;
+
+    //Jump Fix
+    public bool jumpNoConsecutivo;
+
+
     void Start()
     {
-
+        dashCollider.SetActive(false);
     }
 
     public void OnTriggerEnter(Collider other)
@@ -100,6 +115,7 @@ public class Player : MonoBehaviour
             if(other.gameObject.GetComponent<condSon>().atck == false)
             {
                 wolfTouch = true;
+                wolfMonitor = wolfTouch;
             }
 
         }
@@ -114,6 +130,7 @@ public class Player : MonoBehaviour
         if (other.gameObject.tag == "Wolf")
         {
             wolfTouch = false;
+            wolfMonitor = wolfTouch;
             if (canJump == true)
                 Gmanager.pisada = 0;
         }
@@ -137,6 +154,7 @@ public class Player : MonoBehaviour
         {
             ResetJump();
             anime.SetBool("Jump", false);
+
         }
 
     }
@@ -150,6 +168,7 @@ public class Player : MonoBehaviour
         if (other.gameObject.tag == "floor" & yVel <= axisTol & canJump == true)
         {
             anime.SetBool("Jump", false);
+            jumpNoConsecutivo = false;//Evita bug de salto consecutivo
 
         }
     }
@@ -166,9 +185,13 @@ public class Player : MonoBehaviour
                 rb.useGravity = true;
                 anime.SetBool("dash", false);
                 IsDash = false;
+                dashCollider.GetComponent<dashDetector>().choque = false;
+                dashCollider.SetActive(false);
+                
                 foreach (GameObject item in DashTrail)
                 {
                     item.SetActive(false);
+
                 }
             }
         }
@@ -188,32 +211,64 @@ public class Player : MonoBehaviour
     public void ResetJump()//Impide bug visual entre las animaciones de saltar, que salte con la animación de aterrizar
     {
         canJump = true;
+
+
+        //jumpNoConsecutivo = false;
     }
+
+
+    public void spawnDash()
+    {
+        {
+            print("fun");
+            if (Input.GetMouseButtonDown(1) & DashMonitor.GetComponent<dashDetector>().choque == false & notMove == false & DashNoConsecutivo == false)//Impide el dash si ya existe una colison
+            {
+                print("execute");
+                DashNoConsecutivo = true;
+                //DashSend += 1;
+                //StartCoroutine(DashFixer());
+                DashTiming = timing;
+
+
+                gameObject.GetComponent<SfxManager>().Play("dash");
+
+                anime.Play("Dash");// Salta directo a la animación especificada
+                foreach (GameObject item in DashTrail)
+                {
+                    item.SetActive(true);
+                }
+
+
+                anime.SetBool("dash", true);
+                IsDash = true;
+                StartCoroutine(Dash());
+                move = true;
+                rb.useGravity = false;
+
+                contadore = GameObject.FindGameObjectWithTag("Manager");
+                FindObjectOfType<contador>().dash++;
+                //Debug.Log("usar solo en este proyecto");
+            }
+        }
+    }
+
     void Update()
     {
+        if (DashTiming > 0)
+            DashTiming -= 1;
+        else
+            DashNoConsecutivo = false;
 
         //Dash
-        if (Input.GetMouseButtonDown(1) & DashMonitor.GetComponent<dashDetector>().choque == false & notMove == false)//Impide el dash si ya existe una colison
+        if (Input.GetMouseButtonDown(1))
         {
-            gameObject.GetComponent<SfxManager>().Play("dash");
-
-            anime.Play("Dash");// Salta directo a la animación especificada
-            foreach (GameObject item in DashTrail)
-            {
-                item.SetActive(true);
-            }
-
-
-            anime.SetBool("dash", true);
-            IsDash = true;
-            StartCoroutine(Dash());
-            move = true;
-            rb.useGravity = false;
-
-            contadore = GameObject.FindGameObjectWithTag("Manager");
-            FindObjectOfType<contador>().dash++;
-            //Debug.Log("usar solo en este proyecto");
+            //Tapar con muros invisibles para tapar lugares dónde no quieres que se meta el personaje
+            print("send");
+            dashCollider.SetActive(true);
+            spawnDash();
         }
+
+
 
         //ang = JoystickRight.angle;
         anga = MoveJoystick.angle;
@@ -349,14 +404,19 @@ public class Player : MonoBehaviour
         if (yVel < axisTol & yVel > axisTolDown) //bug de caer y quedar saltando
         {
             canJump = true;
+
             //anime.SetBool("Jump", false);
+
         }
 
 
         if (Input.GetKeyDown(KeyCode.Space)) //Salto
         {
-            if (canJump & notMove == false & IsDash == false)
+            if (canJump & notMove == false & IsDash == false & jumpNoConsecutivo == false)
             {
+                jumpNoConsecutivo = true;
+                //StartCoroutine(JumpFix());
+
                 gameObject.GetComponent<SfxManager>().Play("jump");
 
                 canJump = false;
@@ -383,7 +443,18 @@ public class Player : MonoBehaviour
         if(IsExternalForce)
             anime.Play("Damage");
     }
-
+    //IEnumerator DashFixer()
+    //{
+        //print("fixDash");
+        //yield return new WaitForSeconds(DashFixTimer);
+        //{
+          //  {
+            //DashNoConsecutivo = false;
+                //DashRec += 1;
+                //print("reset");
+        //    }
+      //  }
+    //}
         IEnumerator Dash()
     {
 
@@ -391,9 +462,12 @@ public class Player : MonoBehaviour
         {
             if (IsDash)
             {
+
                 rb.useGravity = true;
                 anime.SetBool("dash", false);
                 IsDash = false;
+                dashCollider.SetActive(false);
+                
                 foreach (GameObject item in DashTrail)
                 {
                     item.SetActive(false);
@@ -405,6 +479,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        //Bug reset dash no consecutivo
+        //if (DashSend == DashRec)
+        {
+            //DashRec = +1;
+            //DashNoConsecutivo = false;
+        }
         //Fall speed
         if (canJump == false)//Permite una caida más pesada y agradable
         {
