@@ -713,6 +713,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pej: {fileID: 1713222830}
   choque: 0
+  done: 0
+  numerator: 0
 --- !u!1 &1283989603
 GameObject:
   m_ObjectHideFlags: 0
@@ -802,7 +804,7 @@ CapsuleCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 0.52
-  m_Height: 2.4
+  m_Height: 2.79
   m_Direction: 1
   m_Center: {x: 0, y: 1.54, z: 0}
 --- !u!1 &1413554064
@@ -1269,7 +1271,6 @@ MonoBehaviour:
   - {fileID: 1647099474}
   - {fileID: 478476109}
   - {fileID: 1764316561}
-  DashMonitor: {fileID: 890237950}
   IsExternalForce: 0
   rb: {fileID: 3260767640743021080}
   anime: {fileID: 5244831808026351709}
@@ -1652,6 +1653,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pej: {fileID: 1713222830}
   choque: 0
+  done: 0
+  numerator: 0
 --- !u!1 &17408903743026378
 GameObject:
   m_ObjectHideFlags: 0

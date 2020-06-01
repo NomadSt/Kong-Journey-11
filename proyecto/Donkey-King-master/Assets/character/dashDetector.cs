@@ -6,6 +6,9 @@ public class dashDetector : MonoBehaviour
 {
     public GameObject pej;
     public bool choque;
+    public bool done;
+
+    public int numerator;
 
     // Start is called before the first frame update
     void Start()
@@ -32,9 +35,24 @@ public class dashDetector : MonoBehaviour
             }
         }
     }
-    // Update is called once per frame
-    void Update()
+
+    public void Update()
     {
+        numerator -= 1;
+        if (numerator < 1)
+            spawn();
+    }
+    // Update is called once per frame
+    public void spawn()
+    {
+        if (done == true)
+        {
+            done = false;
+            print("done");
+            pej.GetComponent<Player>().spawnDash();
+        }
         
+
+
     }
 }

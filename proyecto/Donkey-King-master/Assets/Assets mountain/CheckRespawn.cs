@@ -11,10 +11,12 @@ public class CheckRespawn : MonoBehaviour
     public static bool safe;
     public bool cancel;
     public bool touch;
+    public bool work;
 
     void Start()
     {
         LoseChange = GameObject.FindGameObjectWithTag("LosChange").GetComponent<Animator>();
+        pej = GameObject.FindGameObjectWithTag("Wukong");
     }
     public void OnTriggerEnter(Collider other)
     {
@@ -35,11 +37,29 @@ public class CheckRespawn : MonoBehaviour
                 StartCoroutine(Teleport());
         }
     }
+    public void Update()
+    {
+        if(pej.transform.position.y < transform.position.y & work == false)
+        {
+            work = true;
+            FindObjectOfType<BaseCam>().GetComponent<BaseCam>().enabled = false;
+            FindObjectOfType<Player>().GetComponent<Player>().notMove = true;
+            FindObjectOfType<Player>().GetComponent<CapsuleCollider>().enabled = false;
+            LoseChange.Play("FastiHide");
+            LoseChange.SetBool("fast", true);
+            LoseChange.SetBool("show", true);
+            safe = true;
 
+            Animation1.vidas -= 1;
+            //if (Animation1.intentos >= 0)
+            StartCoroutine(Teleport());
+        }
+    }
     IEnumerator Teleport()
     {
         yield return new WaitForSeconds(timer1);
         {
+            work = false;
             FindObjectOfType<Player>().GetComponent<CapsuleCollider>().enabled = true;
             FindObjectOfType<Estadísticas>().GetComponent<Estadísticas>().trapecista = false;//Quita desafío de trapecista
 
